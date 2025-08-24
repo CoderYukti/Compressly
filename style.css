@@ -1,0 +1,377 @@
+/* GENERAL */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    background: #f2f4f7;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 750px;
+    width: 100%;
+}
+
+/* DROP AREA */
+#drop-area {
+    border: 2px dashed #0070f3;
+    padding: 30px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-bottom: 25px;
+    background: #e6f0ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+#drop-area:hover {
+    background: #d0e4ff;
+    border-color: #005bb5;
+}
+#upload {
+    display: none;
+}
+
+#drop-area p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #005bb5;
+}
+
+/* OPTIONS */
+.options {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 15px 0;
+    align-items: center;
+}
+
+.options label {
+    font-weight: 500;
+    color: #333;
+}
+
+.options input[type="number"],
+.options select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+/* BUTTONS */
+button {
+    background: linear-gradient(90deg, #0070f3, #005bb5);
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+button:hover:enabled {
+    background: linear-gradient(90deg, #005bb5, #003f7f);
+    transform: translateY(-2px);
+}
+
+/* PROGRESS BAR */
+#progress-container {
+    width: 100%;
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #0070f3, #00c3ff);
+    border-radius: 10px;
+    position: relative;
+    transition: width 0.4s ease-in-out;
+}
+
+
+#progress-bar #progress-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    top: 0;
+    left: 0;
+}
+
+
+/* SIZE INFO */
+#size-info {
+    margin-top: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+#size-info p {
+    margin: 4px 0;
+}
+
+/* PREVIEW GRID/LIST */
+#preview {
+    margin-top: 25px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.preview-item {
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease;
+    position: relative;
+    width: 150px;
+}
+
+.preview-item small {
+    font-size: 12px;
+    color: #666;
+}
+
+/* IMAGE PROGRESS BAR */
+.image-progress {
+    width: 100%;
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.image-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #00c3ff;
+    border-radius: 6px;
+    transition: width 0.3s ease;
+}
+
+/* STATUS ICON */
+.status-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 18px;
+    color: green;
+    opacity: 0;
+    transition: all 0.4s ease;
+}
+
+.status-icon.success {
+    opacity: 1;
+}
+
+/* REMOVE BUTTON */
+.remove-btn {
+    background: #ff4d4f;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    padding: 0;
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.preview-item:hover .remove-btn {
+    opacity: 1;
+}
+
+/* LIST MODE */
+#preview.list-mode {
+    flex-direction: column;
+    align-items: center;
+}
+
+#preview.list-mode .preview-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 10px;
+    background: #f9f9f9;
+    gap: 15px;
+}
+
+#preview.list-mode .preview-item img {
+    width: 100px;
+    height: 100px;
+}
+
+#preview.list-mode .preview-item small,
+#preview.list-mode .preview-item .image-progress {
+    flex: 1;
+}
+
+/* MEDIA QUERIES */
+@media (max-width: 600px) {
+    .options {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #preview img {
+        width: 80px;
+        height: 80px;
+    }
+
+    button {
+        width: 100%;
+    }
+}
+
+
+
+
+.controls-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.actions-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.size-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.size-card {
+  background: #f0f4f8;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  flex: 1;
+  text-align: center;
+}
+
+
+.upload-container {
+  max-width: 600px;
+  margin: 40px auto;
+  text-align: center;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.upload-box {
+  border: 2px dashed #ccc;
+  border-radius: 16px;
+  padding: 40px 20px;
+  background: #fafafa;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.upload-box:hover {
+  border-color: #007bff;
+  background: #f0f8ff;
+}
+
+.upload-icon {
+  font-size: 50px;
+  margin-bottom: 15px;
+  color: #007bff;
+}
+
+.upload-box h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 10px 0;
+  color: #333;
+}
+
+.upload-box p {
+  font-size: 14px;
+  color: #666;
+}
+
+.browse-btn {
+  color: #007bff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.preview-list {
+  margin-top: 20px;
+  display: grid;
+  gap: 15px;
+}
+
+.preview-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.preview-item img {
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.preview-details {
+  flex: 1;
+  text-align: left;
+}
+
+.preview-details p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #333;
+}
