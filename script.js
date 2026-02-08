@@ -1,5 +1,7 @@
 let images = [];
 let compressedFiles = [];
+const previewMap = new Map(); // File → preview DOM element
+let lastCompressedFormat = null;
 
 const uploadInput = document.getElementById("upload");
 const dropArea = document.getElementById("drop-area");
@@ -65,8 +67,11 @@ function handleFiles(files) {
 // Render preview
 function renderPreview() {
     previewContainer.innerHTML = "";
+    previewMap.clear();
+
     if (images.length === 0) {
-        previewContainer.innerHTML = "<p>No images uploaded. Drag & drop or click above to add images.</p>";
+        previewContainer.innerHTML =
+            "<p>No images uploaded. Drag & drop or click above to add images.</p>";
         document.getElementById("compressBtn").disabled = true;
         document.getElementById("downloadAllBtn").disabled = true;
         return;
@@ -74,64 +79,85 @@ function renderPreview() {
 
     document.getElementById("compressBtn").disabled = false;
 
-    images.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-            const div = document.createElement("div");
-            div.className = "preview-item";
+    // 🔥 lock visual order: newest → oldest
+    const orderedImages = [...images].reverse();
 
-            const img = document.createElement("img");
-            img.src = ev.target.result;
+    orderedImages.forEach(file => {
+        // ---- create DOM synchronously (order-safe)
+        const div = document.createElement("div");
+        div.className = "preview-item";
+        previewMap.set(file, div);
 
-            const removeBtn = document.createElement("button");
-            removeBtn.type = "button";
-            removeBtn.className = "remove-btn";
-            removeBtn.textContent = "×";
-            removeBtn.addEventListener("click", () => {
-                images = images.filter(f => f !== file);
-                compressedFiles = compressedFiles.filter(f => f.original !== file);
-                renderPreview();
-                updateOriginalSize();
-            });
+        const img = document.createElement("img");
+        img.alt = file.name;
 
-            const sizeLabel = document.createElement("small");
-            sizeLabel.textContent = `Original: ${(file.size / 1024).toFixed(1)} KB`;
-
-            const compressedLabel = document.createElement("small");
-            compressedLabel.textContent = `Compressed: 0 KB`;
-
-            const downloadBtn = document.createElement("button");
-            downloadBtn.textContent = "Download";
-            downloadBtn.className = "download-btn";
-            downloadBtn.disabled = true;
-            downloadBtn.addEventListener("click", () => {
-                const compFileObj = compressedFiles.find(f => f.original === file);
-                if (compFileObj) {
-                    const ext = compFileObj.format || compFileObj.file.type.split("/")[1];
-                    saveAs(
-                        compFileObj.file,
-                        cleanFileName(file.name).replace(/\.[^/.]+$/, `.${ext}`)
-                    );
-                }
-            });
-
-            const progressDiv = document.createElement("div");
-            progressDiv.className = "image-progress";
-            progressDiv.innerHTML = `<div class="image-progress-bar"></div>`;
-
-            div.appendChild(img);
-            div.appendChild(removeBtn);
-            div.appendChild(sizeLabel);
-            div.appendChild(compressedLabel);
-            div.appendChild(progressDiv);
-            div.appendChild(downloadBtn);
-
-            previewContainer.appendChild(div);
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "remove-btn";
+        removeBtn.textContent = "×";
+        removeBtn.onclick = () => {
+            images = images.filter(f => f !== file);
+            compressedFiles = compressedFiles.filter(f => f.original !== file);
+            previewMap.delete(file);
+            renderPreview();
+            updateOriginalSize();
         };
+
+        const sizeLabel = document.createElement("small");
+        sizeLabel.textContent = `Original: ${(file.size / 1024).toFixed(1)} KB`;
+
+        const compressedLabel = document.createElement("small");
+        compressedLabel.textContent = "Compressed: 0 KB";
+
+        const progressDiv = document.createElement("div");
+        progressDiv.className = "image-progress";
+        progressDiv.innerHTML = `<div class="image-progress-bar"></div>`;
+
+        const downloadBtn = document.createElement("button");
+        downloadBtn.textContent = "Download";
+        downloadBtn.className = "download-btn";
+        downloadBtn.disabled = true;
+
+        downloadBtn.onclick = () => {
+            const comp = compressedFiles.find(f => f.original === file);
+            if (!comp) return;
+
+            const ext = comp.format || comp.file.type.split("/")[1];
+            saveAs(
+                comp.file,
+                cleanFileName(file.name).replace(/\.[^/.]+$/, `.${ext}`)
+            );
+        };
+
+        div.append(
+            img,
+            removeBtn,
+            sizeLabel,
+            compressedLabel,
+            progressDiv,
+            downloadBtn
+        );
+
+        previewContainer.appendChild(div);
+
+        // ---- restore compressed state (CRITICAL FIX)
+        const compressedData = compressedFiles.find(f => f.original === file);
+        if (compressedData) {
+            compressedLabel.textContent =
+                `Compressed: ${(compressedData.file.size / 1024).toFixed(1)} KB`;
+            downloadBtn.disabled = false;
+            progressDiv.querySelector(".image-progress-bar").style.width = "100%";
+        }
+
+        // ---- async image load (no ordering side effects)
+        const reader = new FileReader();
+        reader.onload = e => (img.src = e.target.result);
         reader.readAsDataURL(file);
     });
+
     previewContainer.classList.add("list-mode");
 }
+
 
 // Update Original Size
 function updateOriginalSize() {
@@ -247,7 +273,10 @@ async function compressToTarget(file, options, targetSizeKB = null) {
 
 // --- Compress Images ---
 async function compressImages(options, subset = null, targetSizeKB = null) {
-    const targetImages = subset || images;
+    const targetImages = (subset || [...images].reverse()).filter(
+        file => !compressedFiles.some(f => f.original === file)
+    );
+
     if (targetImages.length === 0) return;
 
     if (!subset) progressBar.style.width = "0%";
@@ -262,10 +291,12 @@ async function compressImages(options, subset = null, targetSizeKB = null) {
 
     for (let i = 0; i < totalImages; i++) {
         const file = targetImages[i];
-        const globalIndex = images.indexOf(file);
-        const progressBarEl = previewItems[globalIndex]?.querySelector(".image-progress-bar");
-        const compressedLabel = previewItems[globalIndex]?.querySelectorAll("small")[1];
-        const downloadBtn = previewItems[globalIndex]?.querySelector(".download-btn");
+        const previewItem = previewMap.get(file);
+        if (!previewItem) continue;
+
+        const progressBarEl = previewItem.querySelector(".image-progress-bar");
+        const compressedLabel = previewItem.querySelectorAll("small")[1];
+        const downloadBtn = previewItem.querySelector(".download-btn");
 
         try {
             const result = await compressToTarget(file, options, targetSizeKB);
@@ -289,7 +320,10 @@ async function compressImages(options, subset = null, targetSizeKB = null) {
 
     if (!subset) {
         document.getElementById("compressed-size").textContent = `Compressed Size: ${(totalCompressed / 1024).toFixed(1)} KB`;
-        const totalOriginal = images.reduce((sum, file) => sum + file.size, 0);
+        const totalOriginal = compressedFiles.reduce(
+            (sum, obj) => sum + obj.original.size,
+            0
+        );
         const savedPercent = totalOriginal ? ((totalOriginal - totalCompressed) / totalOriginal * 100).toFixed(1) : "0.0";
         document.getElementById("saved-percent").textContent = `Saved: ${savedPercent}%`;
 
@@ -305,7 +339,10 @@ async function compressImages(options, subset = null, targetSizeKB = null) {
 
 // --- Batch Compression ---
 async function compressImagesInBatches(options, batchSize = 5, subset = null, targetSizeKB = null) {
-    const targetImages = subset || images;
+    const targetImages = (subset || [...images].reverse()).filter(
+        file => !compressedFiles.some(f => f.original === file)
+    );
+
     if (targetImages.length === 0) return;
 
     const totalImages = targetImages.length;
@@ -316,11 +353,12 @@ async function compressImagesInBatches(options, batchSize = 5, subset = null, ta
     progressBar.style.width = "0%";
     document.getElementById("progress-text").textContent = "0%";
 
-    // Reset per-image progress bars
-    const previewItems = document.querySelectorAll(".preview-item");
-    previewItems.forEach(item => {
-        const imgProgressBar = item.querySelector(".image-progress-bar");
-        if (imgProgressBar) imgProgressBar.style.width = "0%";
+    // ✅ Reset progress bars ONLY for images being compressed
+    targetImages.forEach(file => {
+        const preview = previewMap.get(file);
+        if (!preview) return;
+        const bar = preview.querySelector(".image-progress-bar");
+        if (bar) bar.style.width = "0%";
     });
 
     for (let i = 0; i < totalImages; i += batchSize) {
@@ -349,10 +387,13 @@ document.getElementById("compressBtn").addEventListener("click", async () => {
     const maxSizeInput = parseFloat(document.getElementById("maxSize").value);
     let qualityInput = parseFloat(document.getElementById("quality").value);
 
-    if (isNaN(qualityInput) || qualityInput <= 0 || qualityInput > 100) qualityInput = 90;
-    let quality = qualityInput / 100;
+    if (isNaN(qualityInput) || qualityInput <= 0 || qualityInput > 100) {
+        qualityInput = 90;
+    }
 
+    let quality = qualityInput / 100;
     let targetSizeKB = null;
+
     if (maxSizeInput > 0) {
         targetSizeKB = maxSizeInput;
         quality = null;
@@ -365,8 +406,17 @@ document.getElementById("compressBtn").addEventListener("click", async () => {
         initialQuality: quality
     };
 
+    // ✅ ONLY reset when format actually changes
+    if (lastCompressedFormat !== format) {
+        compressedFiles = [];
+        renderPreview();
+        lastCompressedFormat = format;
+    }
+
     await compressImagesInBatches(options, 5, null, targetSizeKB);
 });
+
+
 
 // Download All
 document.getElementById("downloadAllBtn").addEventListener("click", async () => {
