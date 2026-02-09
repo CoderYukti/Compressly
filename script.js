@@ -2,6 +2,7 @@ let images = [];
 let compressedFiles = [];
 const previewMap = new Map(); // File → preview DOM element
 let lastCompressedFormat = null;
+let lastCompressionSettings = null;
 
 const uploadInput = document.getElementById("upload");
 const dropArea = document.getElementById("drop-area");
@@ -379,6 +380,13 @@ async function compressImagesInBatches(options, batchSize = 5, subset = null, ta
     document.getElementById("saved-percent").textContent = `Saved: ${savedPercent}%`;
 }
 
+function getCompressionSignature(format, quality, targetSizeKB) {
+    return JSON.stringify({
+        format,
+        quality: quality ? Number(quality.toFixed(2)) : null,
+        targetSizeKB
+    });
+}
 
 // --- Button Handlers ---
 // Compress button
@@ -394,9 +402,9 @@ document.getElementById("compressBtn").addEventListener("click", async () => {
     let quality = qualityInput / 100;
     let targetSizeKB = null;
 
-    if (maxSizeInput > 0) {
+    if (!isNaN(maxSizeInput) && maxSizeInput > 0) {
         targetSizeKB = maxSizeInput;
-        quality = null;
+        quality = 0.95;
     }
 
     const options = {
@@ -406,17 +414,22 @@ document.getElementById("compressBtn").addEventListener("click", async () => {
         initialQuality: quality
     };
 
-    // ✅ ONLY reset when format actually changes
-    if (lastCompressedFormat !== format) {
+    // 🔐 CREATE CURRENT SETTINGS SIGNATURE
+    const currentSignature = getCompressionSignature(
+        format,
+        quality,
+        targetSizeKB
+    );
+
+    // 🔥 Reset ONLY if settings changed
+    if (lastCompressionSettings !== currentSignature) {
         compressedFiles = [];
         renderPreview();
-        lastCompressedFormat = format;
+        lastCompressionSettings = currentSignature;
     }
 
     await compressImagesInBatches(options, 5, null, targetSizeKB);
 });
-
-
 
 // Download All
 document.getElementById("downloadAllBtn").addEventListener("click", async () => {
