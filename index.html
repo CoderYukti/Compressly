@@ -4,76 +4,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compressly</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📸</text></svg>">
+    <title>Compressly — Web Image Optimizer</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📸</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <div class="noise"></div>
     <div class="container">
-        <h1>Boost Website Speed with Optimized Images</h1>
 
-        <!-- Compact Controls Card -->
-        <section class="controls-card">
-            <!-- Upload -->
-            <div class="upload-box upload-section" id="drop-area">
-                <div class="upload-icon">📂</div>
-                <h3>Drag & Drop your images here</h3>
-                <p>or <span class="browse-btn">browse</span> from your computer</p>
-                <input type="file" id="upload" multiple accept="image/*" hidden>
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">📸</span>
+                <span class="logo-text">Compressly</span>
             </div>
+            <p class="tagline">Built for web &amp; WordPress developers — optimize images without leaving your browser.
+            </p>
+        </header>
 
-
-            <!-- Options -->
-            <div class="options">
-                <label for="quality">Quality (%):</label>
-                <input type="number" id="quality" min="10" max="100" autocomplete="off">
-
-                <label for="maxSize">Target File Size (KB):</label>
-                <input type="number" id="maxSize" min="1" max="1024" autocomplete="off">
-
-
-                <label for="format">Output format:</label>
-                <select id="format">
-                    <option value="image/webp">WebP</option>
-                    <option value="image/jpeg">JPEG</option>
-                    <option value="image/png">PNG</option>
-                </select>
-            </div>
-
-            <!-- Actions + Progress + Size Info -->
-            <div class="actions-progress">
-                <div class="actions">
-                    <button id="compressBtn">🚀 Compress</button>
-                    <button id="downloadAllBtn" disabled>⬇️ Download All</button>
+        <!-- Upload Zone -->
+        <div class="upload-zone" id="drop-area">
+            <div class="upload-inner">
+                <div class="upload-glyph">
+                    <svg width="44" height="44" viewBox="0 0 48 48" fill="none">
+                        <path d="M24 8v24M24 8l-8 8M24 8l8 8" stroke="currentColor" stroke-width="2.5"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M8 36h32" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+                    </svg>
                 </div>
+                <h2>Drop images here</h2>
+                <p>or <button class="browse-link" id="browseBtn">browse files</button></p>
+                <span class="formats-hint">PNG · JPEG · WebP · GIF · BMP</span>
+            </div>
+            <input type="file" id="upload" multiple accept="image/*" hidden>
+        </div>
 
-                <div class="progress-section">
-                    <div id="progress-container">
-                        <div id="progress-bar"><span id="progress-text">0%</span></div>
+        <!-- Presets -->
+        <div class="section-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"
+                stroke-linecap="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+            Quick Presets
+            <span class="section-hint">for WordPress &amp; Web</span>
+        </div>
+
+        <div class="presets-grid" id="presetsGrid">
+            <button class="preset-card" data-preset="hero">
+                <span class="preset-icon">🖼️</span>
+                <span class="preset-name">Hero Image</span>
+                <span class="preset-meta">≤200KB · 1920px wide</span>
+            </button>
+            <button class="preset-card" data-preset="blog">
+                <span class="preset-icon">📝</span>
+                <span class="preset-name">Blog Thumbnail</span>
+                <span class="preset-meta">≤80KB · 800px wide</span>
+            </button>
+            <button class="preset-card" data-preset="product">
+                <span class="preset-icon">🛒</span>
+                <span class="preset-name">WooCommerce Product</span>
+                <span class="preset-meta">≤120KB · 1200px wide</span>
+            </button>
+            <button class="preset-card" data-preset="social">
+                <span class="preset-icon">🔗</span>
+                <span class="preset-name">Social / OG Image</span>
+                <span class="preset-meta">≤100KB · 1200px wide</span>
+            </button>
+            <button class="preset-card" data-preset="avatar">
+                <span class="preset-icon">👤</span>
+                <span class="preset-name">Avatar / Logo</span>
+                <span class="preset-meta">≤30KB · 400px wide</span>
+            </button>
+            <button class="preset-card" data-preset="retina">
+                <span class="preset-icon">🔍</span>
+                <span class="preset-name">Retina / HiDPI</span>
+                <span class="preset-meta">≤300KB · 2560px wide</span>
+            </button>
+        </div>
+
+        <div class="preset-info-bar" id="presetInfoBar" style="display:none">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"
+                stroke-linecap="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span id="presetInfoText"></span>
+            <button class="preset-clear-btn" id="presetClearBtn">✕ Clear</button>
+        </div>
+
+        <!-- Settings -->
+        <div class="section-label" style="margin-top:28px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"
+                stroke-linecap="round">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14" />
+            </svg>
+            Settings
+        </div>
+
+        <div class="controls-panel">
+
+            <!-- Format -->
+            <div class="control-group full-width">
+                <label class="control-label">Output Format</label>
+                <div class="format-tabs">
+                    <button class="fmt-tab active" data-value="image/webp">
+                        WebP <span class="fmt-badge">Best for Web</span>
+                    </button>
+                    <button class="fmt-tab" data-value="image/jpeg">JPEG</button>
+                    <button class="fmt-tab" data-value="image/png">PNG</button>
+                </div>
+                <p class="hint">WebP gives 25–35% smaller files than JPEG with same quality. Use JPEG/PNG for old
+                    browser support.</p>
+                <input type="hidden" id="format" value="image/webp">
+            </div>
+
+            <!-- Quality -->
+            <div class="control-group">
+                <label class="control-label" for="quality">
+                    Quality
+                    <span class="control-value" id="qualityDisplay">85%</span>
+                </label>
+                <input type="range" id="quality" min="10" max="100" value="85" class="slider">
+                <div class="slider-hints"><span>Smaller file</span><span>Higher quality</span></div>
+            </div>
+
+            <!-- Max File Size -->
+            <div class="control-group">
+                <label class="control-label" for="maxSize">
+                    Max File Size
+                    <span class="control-value muted" id="maxSizeDisplay">–</span>
+                </label>
+                <div class="input-wrap">
+                    <input type="number" id="maxSize" min="1" max="51200" placeholder="e.g. 200" autocomplete="off">
+                    <span class="unit">KB</span>
+                </div>
+                <p class="hint">Tool auto-reduces quality until target size is reached.</p>
+            </div>
+
+            <!-- Resize -->
+            <div class="control-group">
+                <label class="control-label">
+                    Resize Dimensions
+                    <span class="toggle-wrap">
+                        <input type="checkbox" id="resizeToggle" class="toggle-input">
+                        <label for="resizeToggle" class="toggle-label"></label>
+                    </span>
+                </label>
+                <div class="resize-fields" id="resizeFields">
+                    <div class="resize-row">
+                        <div class="input-wrap">
+                            <input type="number" id="resizeWidth" min="1" max="8000" placeholder="Width"
+                                autocomplete="off">
+                            <span class="unit">px</span>
+                        </div>
+                        <span class="resize-x">×</span>
+                        <div class="input-wrap">
+                            <input type="number" id="resizeHeight" min="1" max="8000" placeholder="Height"
+                                autocomplete="off">
+                            <span class="unit">px</span>
+                        </div>
                     </div>
-                </div>
-
-                <div class="size-info">
-                    <div class="size-card" id="original-size">Original: 0 KB</div>
-                    <div class="size-card" id="compressed-size">Compressed: 0 KB</div>
-                    <div class="size-card" id="saved-percent">Saved: 0%</div>
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="aspectLock" checked>
+                        <span>Lock aspect ratio (leave one blank)</span>
+                    </label>
                 </div>
             </div>
+
+            <!-- EXIF -->
+            <div class="control-group">
+                <label class="control-label">
+                    Strip EXIF Metadata
+                    <span class="toggle-wrap">
+                        <input type="checkbox" id="exifToggle" class="toggle-input" checked>
+                        <label for="exifToggle" class="toggle-label"></label>
+                    </span>
+                </label>
+                <p class="hint">Removes GPS location, camera model &amp; hidden data. Recommended for privacy &amp;
+                    smaller files.</p>
+            </div>
+
+            <!-- Filename Suffix -->
+            <div class="control-group">
+                <label class="control-label" for="filenameSuffix">Filename Suffix</label>
+                <div class="input-wrap">
+                    <input type="text" id="filenameSuffix" placeholder="e.g. -min" maxlength="30" autocomplete="off">
+                </div>
+                <p class="hint"><code>hero.jpg</code> + <code>-min</code> → <code>hero-min.webp</code></p>
+            </div>
+
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <button id="compressBtn" class="btn-primary" disabled>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"
+                    stroke-linecap="round">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
+                Compress Images
+            </button>
+            <button id="downloadAllBtn" class="btn-secondary" disabled>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"
+                    stroke-linecap="round">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                Download All (.zip)
+            </button>
+        </div>
+
+        <!-- Progress -->
+        <div class="global-progress" id="globalProgress" style="display:none">
+            <div class="gp-bar-track">
+                <div class="gp-bar-fill" id="progressBar"></div>
+            </div>
+            <div class="gp-stats">
+                <span id="progressText">0%</span>
+                <span id="progressLabel">Starting…</span>
+            </div>
+        </div>
+
+        <!-- Summary Card -->
+        <div class="summary-card" id="summaryCard" style="display:none">
+            <div class="summary-stat">
+                <span class="summary-label">Files</span>
+                <span class="summary-value" id="statFiles">—</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-stat">
+                <span class="summary-label">Original Size</span>
+                <span class="summary-value" id="statBefore">—</span>
+            </div>
+            <div class="summary-arrow">→</div>
+            <div class="summary-stat">
+                <span class="summary-label">Compressed</span>
+                <span class="summary-value accent" id="statAfter">—</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-stat">
+                <span class="summary-label">Space Saved</span>
+                <span class="summary-value green" id="statSaved">—</span>
+            </div>
+        </div>
+
+        <!-- Preview -->
+        <section class="preview-section" id="previewSection" style="display:none">
+            <div class="preview-header">
+                <h2>Images <span class="image-count" id="imageCount">0</span></h2>
+                <button class="clear-btn" id="clearAllBtn">Clear all</button>
+            </div>
+            <div class="preview-grid" id="preview"></div>
         </section>
 
-        <!-- Preview Section -->
-        <section class="preview-section">
-            <h2>🖼️ Preview</h2>
-            <div id="preview">
-                <p>No images uploaded. Drag & drop or click above to add images.</p>
-            </div>
-        </section>
     </div>
 
+    <!-- Before/After Modal -->
+    <div class="modal-overlay" id="modalOverlay" style="display:none">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span id="modalTitle">Before / After Comparison</span>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <div class="compare-wrap" id="compareWrap">
+                <img class="compare-img compare-after" id="compareAfter" alt="Compressed">
+                <img class="compare-img compare-before" id="compareBefore" alt="Original">
+                <div class="compare-slider-line" id="compareSliderLine">
+                    <div class="compare-handle">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round">
+                            <path d="M8 9l-4 3 4 3M16 9l4 3-4 3" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="compare-label left">Original</div>
+                <div class="compare-label right">Compressed</div>
+            </div>
+            <div class="modal-meta" id="modalMeta"></div>
+        </div>
+    </div>
 
-    <!-- JS libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/upng-js@2.1.0/UPNG.js"></script>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
     <script
         src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
