@@ -24,19 +24,6 @@ Compress, resize and convert images right in your browser. Nothing is uploaded �
 
 ---
 
-## 🗂️ Files
-
-| File | Purpose |
-| --- | --- |
-| `index.html`, `style.css`, `script.js` | The app UI |
-| `engine.js` | Compression engine (decode → resize → encode) |
-| `compress.worker.js` | Runs the engine in a Web Worker so the page never freezes (falls back to the main thread if unsupported) |
-| `sw.js`, `manifest.webmanifest`, `icon-*.png` | Offline support / installable app |
-
-> Web Workers and the service worker need the site to be served over **http(s)** (e.g. Vercel or `npx serve`). Opening `index.html` directly from disk still works, just on the main thread and without offline mode.
-
----
-
 ## 📦 Dependencies (loaded from CDN, cached for offline use)
 
 - [UPNG.js](https://github.com/photopea/UPNG.js) + [pako](https://github.com/nodeca/pako) – PNG compression
