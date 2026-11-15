@@ -1,6 +1,6 @@
 /* Compressly service worker: lets the tool open offline after the first visit.
    App files + CDN libraries are cached; updates are picked up on the next load. */
-const CACHE = 'compressly-v1';
+const CACHE = 'compressly-v4';
 const SHELL = ['./', 'index.html', 'style.css', 'script.js', 'engine.js', 'compress.worker.js',
                'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 const LIBS = [

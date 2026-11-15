@@ -989,3 +989,33 @@ loadSettings();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
+
+/* ═══════════════════════════════════════════
+   THEME (dark by default, light on request, remembered)
+   ═══════════════════════════════════════════ */
+const THEME_KEY = 'compressly:theme';
+const themeToggle = $('themeToggle');
+
+function currentTheme() {
+  return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+}
+
+function applyTheme(theme) {
+  const light = theme === 'light';
+  if (light) document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+  themeToggle.setAttribute('aria-pressed', String(!light));          // pressed = dark mode is on (label stays "Dark mode")
+  themeToggle.title = light ? 'Switch to dark theme' : 'Switch to light theme';
+  $('metaTheme')?.setAttribute('content', light ? '#f4f4fa' : '#09090e');   // browser UI bar colour on phones
+}
+
+themeToggle.addEventListener('click', () => {
+  const next = currentTheme() === 'light' ? 'dark' : 'light';
+  applyTheme(next);
+  try { localStorage.setItem(THEME_KEY, next); } catch (_) { /* storage blocked: theme still works for this visit */ }
+});
+
+// keep other open tabs in sync
+window.addEventListener('storage', e => { if (e.key === THEME_KEY) applyTheme(e.newValue === 'light' ? 'light' : 'dark'); });
+
+applyTheme(currentTheme());   // sync button label / theme-color with what the head script applied

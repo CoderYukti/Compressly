@@ -10,14 +10,72 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
         rel="stylesheet">
+    <!-- apply the saved theme before first paint (no dark→light flash) -->
+    <script>try { if (localStorage.getItem('compressly:theme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (e) {}</script>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.webmanifest">
-    <meta name="theme-color" content="#09090e">
+    <meta name="theme-color" content="#09090e" id="metaTheme">
 </head>
 
 <body>
     <div class="noise"></div>
     <div class="container">
+
+        <!-- Theme toggle: "horizon dial" – sun sets behind the hills, moon rises -->
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Dark mode" aria-pressed="true" title="Switch to light theme">
+            <svg class="tt-svg" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+                <defs>
+                    <linearGradient id="tt-g-day" x1="0" y1="0" x2="0" y2="1"><stop class="tt-day-top" offset="0" /><stop class="tt-day-bot" offset="1" /></linearGradient>
+                    <linearGradient id="tt-g-night" x1="0" y1="0" x2="0" y2="1"><stop class="tt-night-top" offset="0" /><stop class="tt-night-bot" offset="1" /></linearGradient>
+                    <radialGradient id="tt-g-sun" cx="35%" cy="30%" r="80%"><stop class="tt-sun-a" offset="0" /><stop class="tt-sun-b" offset="1" /></radialGradient>
+                    <radialGradient id="tt-g-moon" cx="35%" cy="30%" r="80%"><stop class="tt-moon-a" offset="0" /><stop class="tt-moon-b" offset="1" /></radialGradient>
+                </defs>
+
+                <rect class="tt-sky-day" width="48" height="48" fill="url(#tt-g-day)" />
+                <rect class="tt-sky-night" width="48" height="48" fill="url(#tt-g-night)" />
+
+                <g class="tt-stars">
+                    <g transform="translate(9 9) scale(0.9)"><path class="tt-spark tt-spark-1" d="M0-2.6L.7-.7 2.6 0 .7.7 0 2.6-.7.7-2.6 0-.7-.7Z" /></g>
+                    <g transform="translate(38 8) scale(0.7)"><path class="tt-spark tt-spark-2" d="M0-2.6L.7-.7 2.6 0 .7.7 0 2.6-.7.7-2.6 0-.7-.7Z" /></g>
+                    <g transform="translate(41 22) scale(0.9)"><path class="tt-spark tt-spark-3" d="M0-2.6L.7-.7 2.6 0 .7.7 0 2.6-.7.7-2.6 0-.7-.7Z" /></g>
+                    <g transform="translate(7 24) scale(0.6)"><path class="tt-spark tt-spark-4" d="M0-2.6L.7-.7 2.6 0 .7.7 0 2.6-.7.7-2.6 0-.7-.7Z" /></g>
+                    <g transform="translate(34 18) scale(0.55)"><path class="tt-spark tt-spark-5" d="M0-2.6L.7-.7 2.6 0 .7.7 0 2.6-.7.7-2.6 0-.7-.7Z" /></g>
+                </g>
+
+                <!-- swing-arm: pivot at (24,34). Sun on top (day), moon underneath (night) -->
+                <g class="tt-orbit">
+                    <g class="tt-sun" transform="translate(24 14)">
+                        <g class="tt-rays">
+                            <line class="tt-ray" y1="-8.6" y2="-11.4" />
+                            <line class="tt-ray" y1="-8.6" y2="-11.4" transform="rotate(45)" />
+                            <line class="tt-ray" y1="-8.6" y2="-11.4" transform="rotate(90)" />
+                            <line class="tt-ray" y1="-8.6" y2="-11.4" transform="rotate(135)" />
+                            <line class="tt-ray" y1="-8.6" y2="-11.4" transform="rotate(180)" />
+                            <line class="tt-ray" y1="-8.6" y2="-11.4" transform="rotate(225)" />
+                            <line class="tt-ray" y1="-8.6" y2="-11.4" transform="rotate(270)" />
+                            <line class="tt-ray" y1="-8.6" y2="-11.4" transform="rotate(315)" />
+                        </g>
+                        <circle r="6.3" fill="url(#tt-g-sun)" />
+                    </g>
+                    <g class="tt-moon" transform="translate(24 54) rotate(180)">
+                        <circle r="6.5" fill="url(#tt-g-moon)" />
+                        <circle class="tt-crater" cx="-2.3" cy="-1.9" r="1.4" />
+                        <circle class="tt-crater" cx="2.5" cy="1.3" r="1" />
+                        <circle class="tt-crater" cx="-0.5" cy="3" r="1.1" />
+                    </g>
+                </g>
+
+                <g transform="translate(13 21)"><g class="tt-cloud tt-cloud-1"><g class="tt-drift">
+                    <circle cx="-3" cy="0" r="3.2" /><circle cx="1" cy="-1.7" r="4" /><circle cx="5.2" cy="0" r="3" /><rect x="-6.2" y="0" width="14.4" height="3.2" rx="1.6" />
+                </g></g></g>
+                <g transform="translate(36 14) scale(0.7)"><g class="tt-cloud tt-cloud-2"><g class="tt-drift">
+                    <circle cx="-3" cy="0" r="3.2" /><circle cx="1" cy="-1.7" r="4" /><circle cx="5.2" cy="0" r="3" /><rect x="-6.2" y="0" width="14.4" height="3.2" rx="1.6" />
+                </g></g></g>
+
+                <path class="tt-hill-back"  d="M0 37C8 31 16 33 24 36S40 33 48 35V48H0Z" />
+                <path class="tt-hill-front" d="M0 41C9 36 18 40 27 41S41 37 48 40V48H0Z" />
+            </svg>
+        </button>
 
         <!-- Header -->
         <header class="header">

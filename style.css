@@ -17,6 +17,14 @@
   --green:        #1fc56e;
   --green-dim:    rgba(31,197,110,0.15);
   --red:          #ff5270;
+  --text-strong:  #ffffff;
+  --logo-from:    #ffffff;
+  --glyph-bg:     #12121c;
+  --unit-bg:      rgba(255,255,255,0.03);
+  --amber:        #ffb74d;
+  --amber-dim:    rgba(255,183,77,0.12);
+  --amber-border: rgba(255,183,77,0.35);
+  color-scheme:   dark;
   --radius:       14px;
   --radius-sm:    8px;
   --t:            0.18s cubic-bezier(0.4,0,0.2,1);
@@ -60,7 +68,7 @@ body {
 .logo-text {
   font-family: 'Syne', sans-serif;
   font-size: 2.1rem; font-weight: 800; letter-spacing: -0.5px;
-  background: linear-gradient(130deg, #fff 30%, var(--accent-light));
+  background: linear-gradient(130deg, var(--logo-from) 30%, var(--accent-light));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
 .tagline { color: var(--text-muted); font-size: 0.92rem; max-width: 480px; margin: 0 auto; }
@@ -85,7 +93,7 @@ body {
 }
 .upload-zone:hover, .upload-zone.drag-over {
   border-color: var(--accent);
-  background: #12121c;
+  background: var(--glyph-bg);
 }
 .upload-zone:hover::before, .upload-zone.drag-over::before { opacity: 1; }
 .upload-inner { position: relative; z-index: 1; }
@@ -110,7 +118,7 @@ body {
   cursor: pointer; font: inherit; text-decoration: underline; text-underline-offset: 3px;
   transition: color var(--t);
 }
-.browse-link:hover { color: #fff; }
+.browse-link:hover { color: var(--text-strong); }
 .formats-hint {
   display: inline-block; margin-top: 14px;
   font-size: 0.75rem; color: var(--text-muted);
@@ -250,7 +258,7 @@ body {
 .input-wrap input::placeholder { color: var(--text-muted); }
 .unit {
   padding: 9px 11px; color: var(--text-muted); font-size: 0.78rem;
-  background: rgba(255,255,255,0.03); border-left: 1px solid var(--border);
+  background: var(--unit-bg); border-left: 1px solid var(--border);
   white-space: nowrap;
 }
 .hint { font-size: 0.74rem; color: var(--text-muted); }
@@ -379,7 +387,7 @@ body {
   color: var(--green); font-size: 0.7rem; font-weight: 700;
   padding: 2px 6px; border-radius: 999px; letter-spacing: 0.02em;
 }
-.card-note { font-size: 0.73rem; color: #ffb74d; }
+.card-note { font-size: 0.73rem; color: var(--amber); }
 .card-note[hidden] { display: none; }
 .card-progress-bar { height: 2px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
 .card-progress-fill {
@@ -534,7 +542,7 @@ body {
   background: none; border: none; color: var(--accent-light); font: inherit;
   font-weight: 700; cursor: pointer; padding: 0; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.05em;
 }
-.toast-action:hover { color: #fff; }
+.toast-action:hover { color: var(--text-strong); }
 
 .compare-stage { position: relative; transform-origin: 0 0; will-change: transform; }
 .compare-wrap.zoomed { cursor: grab; }
@@ -545,7 +553,7 @@ body {
   border-radius: 999px; pointer-events: none; white-space: nowrap;
 }
 
-.savings-badge.worse { background: rgba(255,183,77,0.12); border-color: rgba(255,183,77,0.35); color: #ffb74d; }
+.savings-badge.worse { background: var(--amber-dim); border-color: var(--amber-border); color: var(--amber); }
 
 /* ===== ROUND 4: small screens & touch ===== */
 .fmt-badge { white-space: nowrap; }
@@ -591,4 +599,121 @@ body {
 }
 @media (max-width: 400px) {
   .card-thumb { width: 48px; height: 38px; }
+}
+
+/* ===== THEME: light version (dark is the default, see :root) ===== */
+[data-theme="light"] {
+  color-scheme:   light;
+  --bg:           #f4f4fa;
+  --bg2:          #ffffff;
+  --bg3:          #f0f0f7;
+  --bg4:          #e3e3ee;
+  --border:       rgba(20,20,45,0.10);
+  --border-h:     rgba(20,20,45,0.20);
+  --text:         #15151f;
+  --text-soft:    #4a4a63;
+  --text-muted:   #5c5c76;
+  --text-strong:  #000000;
+  --accent-light: #5843e6;
+  --accent-glow:  rgba(111,92,255,0.20);
+  --green:        #07733c;
+  --green-dim:    rgba(7,115,60,0.11);
+  --red:          #d6264b;
+  --logo-from:    #15151f;
+  --glyph-bg:     #f1efff;
+  --unit-bg:      rgba(20,20,45,0.04);
+  --amber:        #9a5600;
+  --amber-dim:    rgba(154,86,0,0.10);
+  --amber-border: rgba(154,86,0,0.35);
+}
+[data-theme="light"] .noise { opacity: 0.02; }
+
+/* Theme toggle: "horizon dial".
+   A round window onto the sky. A swing-arm carries the sun on one end and the moon on the other; the arm turns half a
+   circle, so the sun sets behind the hills while the moon rises. Dark theme = night, light theme = day.
+   The state comes from <html data-theme>, so it is already correct on first paint (no animation on page load). */
+.theme-toggle {
+  --tt-size: 46px;
+  --tt-day-top:   #4db6ff;  --tt-day-bot:   #bfe8ff;
+  --tt-night-top: #0d1230;  --tt-night-bot: #2f3380;
+  --tt-sun-a: #fff0a0;      --tt-sun-b: #ffa21f;      --tt-ray: #ffd23f;
+  --tt-moon-a: #ffffff;     --tt-moon-b: #d9dcf5;     --tt-crater: #aeb2da;
+  --tt-hill-back-day: #7fd19a;  --tt-hill-front-day: #3aa56a;
+  --tt-hill-back-night: #232a63; --tt-hill-front-night: #151a45;
+  --tt-ring: rgba(20,20,45,0.22);
+
+  position: absolute; top: 12px; right: 18px; z-index: 5;
+  display: block;                               /* block-level, so margin-left:auto can push it right on small screens */
+  width: var(--tt-size); height: var(--tt-size); padding: 0;
+  border: 2px solid var(--tt-ring); border-radius: 50%; overflow: hidden;
+  background: transparent;                      /* the SVG paints the sky; keeps the ring colour pure */
+  box-shadow: 0 3px 14px rgba(0,0,0,0.16);
+  cursor: pointer; appearance: none; -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.8s ease, box-shadow 0.8s ease, transform var(--t);
+}
+.theme-toggle:hover  { transform: scale(1.07); }
+.theme-toggle:active { transform: scale(0.93); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.tt-svg { display: block; width: 100%; height: 100%; }
+
+/* sky: day gradient underneath, night gradient fades in on top */
+.tt-day-top   { stop-color: var(--tt-day-top); }   .tt-day-bot   { stop-color: var(--tt-day-bot); }
+.tt-night-top { stop-color: var(--tt-night-top); } .tt-night-bot { stop-color: var(--tt-night-bot); }
+.tt-sun-a { stop-color: var(--tt-sun-a); } .tt-sun-b { stop-color: var(--tt-sun-b); }
+.tt-moon-a { stop-color: var(--tt-moon-a); } .tt-moon-b { stop-color: var(--tt-moon-b); }
+.tt-sky-night { opacity: 0; transition: opacity 0.8s ease; }
+
+/* swing-arm: sun at the top, moon below the horizon; turning it 180° swaps them */
+.tt-orbit {
+  transform-box: view-box; transform-origin: 24px 34px; transform: rotate(0deg);
+  transition: transform 0.95s cubic-bezier(0.5, 0, 0.15, 1);
+}
+.theme-toggle:hover .tt-orbit { transform: rotate(10deg); }                    /* sun starts to set: hints at what a click does */
+.tt-sun  { filter: drop-shadow(0 0 2.5px rgba(255,170,30,0.85)); }
+.tt-moon { filter: drop-shadow(0 0 2.5px rgba(200,205,255,0.7)); }
+.tt-ray  { stroke: var(--tt-ray); stroke-width: 1.5; stroke-linecap: round; }
+.tt-rays { transform-box: fill-box; transform-origin: center; animation: tt-spin 22s linear infinite; }
+.tt-crater { fill: var(--tt-crater); opacity: 0.55; }
+
+/* clouds drift gently by day and float away at night */
+.tt-cloud { fill: #fff; opacity: 0.96; transition: transform 0.9s ease, opacity 0.7s ease; }
+.tt-drift { animation: tt-drift 7s ease-in-out infinite alternate; }
+.tt-cloud-2 .tt-drift { animation-duration: 9s; animation-delay: -3s; }
+
+/* stars: 4-point sparkles that appear after dark */
+.tt-spark { fill: #fff; opacity: 0; transform-box: fill-box; transform-origin: center; transition: opacity 0.8s ease 0.25s; }
+
+/* hills: the horizon that hides whichever body is "below" */
+.tt-hill-back  { fill: var(--tt-hill-back-day);  transition: fill 0.8s ease; }
+.tt-hill-front { fill: var(--tt-hill-front-day); transition: fill 0.8s ease; }
+
+/* ---- night (= dark theme, the default) ---- */
+:root:not([data-theme="light"]) .theme-toggle { border-color: rgba(255,255,255,0.24); box-shadow: 0 3px 16px rgba(0,0,0,0.5); }
+:root:not([data-theme="light"]) .tt-sky-night { opacity: 1; }
+:root:not([data-theme="light"]) .tt-orbit { transform: rotate(180deg); }
+:root:not([data-theme="light"]) .theme-toggle:hover .tt-orbit { transform: rotate(170deg); }
+:root:not([data-theme="light"]) .tt-rays { animation-play-state: paused; }
+:root:not([data-theme="light"]) .tt-cloud { transform: translateX(26px); opacity: 0; }
+:root:not([data-theme="light"]) .tt-spark { opacity: 1; animation: tt-twinkle 3s ease-in-out infinite; }
+:root:not([data-theme="light"]) .tt-spark-1 { animation-delay: 1.0s; }
+:root:not([data-theme="light"]) .tt-spark-2 { animation-delay: 1.6s; }
+:root:not([data-theme="light"]) .tt-spark-3 { animation-delay: 2.2s; }
+:root:not([data-theme="light"]) .tt-spark-4 { animation-delay: 1.3s; }
+:root:not([data-theme="light"]) .tt-spark-5 { animation-delay: 1.9s; }
+:root:not([data-theme="light"]) .tt-hill-back  { fill: var(--tt-hill-back-night); }
+:root:not([data-theme="light"]) .tt-hill-front { fill: var(--tt-hill-front-night); }
+
+@keyframes tt-spin    { to { transform: rotate(360deg); } }
+@keyframes tt-drift   { from { transform: translateX(-1.4px); } to { transform: translateX(1.6px); } }
+@keyframes tt-twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.65); } }
+
+@media (pointer: coarse) { .theme-toggle { --tt-size: 50px; } }   /* comfortable thumb target */
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle, .theme-toggle * { transition-duration: 0.01s !important; transition-delay: 0s !important; animation: none !important; }
+}
+
+/* Phones/small tablets: the toggle gets its own row above the logo, so a wide logo font can never run under it */
+@media (max-width: 640px) {
+  .container { padding-top: 16px; }
+  .theme-toggle { position: relative; top: auto; right: auto; margin: 0 0 6px auto; }   /* relative (not static): sun, clouds and stars are positioned inside it */
 }
