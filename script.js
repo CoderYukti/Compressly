@@ -875,14 +875,20 @@ compareWrap.addEventListener('wheel', e => {
 }, { passive: false });
 
 // Double-click: jump to 100% (real pixels) / back to fit
-compareWrap.addEventListener('dblclick', e => {
+function toggleZoom(x, y) {
   if (zoom > 1) { resetZoom(); return; }
   const nw = compareBefore.naturalWidth, nh = compareBefore.naturalHeight;
   const fit = Math.min(compareBefore.clientWidth / nw, compareBefore.clientHeight / nh) || 1;
-  zoomAt(e.clientX, e.clientY, Math.max(2, 1 / fit));
+  zoomAt(x, y, Math.max(2, 1 / fit));
+}
+let lastTouch = 0;   // browsers replay touches as mouse events; ignore those so gestures don't fire twice
+compareWrap.addEventListener('dblclick', e => {
+  if (Date.now() - lastTouch < 700) return;
+  toggleZoom(e.clientX, e.clientY);
 });
 
 compareWrap.addEventListener('mousedown', e => {
+  if (Date.now() - lastTouch < 700) return;
   if (zoom > 1 && !e.target.closest('#compareSliderLine')) {   // zoomed: drag pans; the handle still moves the slider
     panning = true;
     panStart = { x: e.clientX - panX, y: e.clientY - panY };
@@ -891,14 +897,38 @@ compareWrap.addEventListener('mousedown', e => {
   }
   dragging = true; moveSlider(e);
 });
-compareWrap.addEventListener('touchstart', e => { dragging = true; moveSlider(e.touches[0]); }, { passive: true });
+// Touch: 2 fingers = pinch zoom, 1 finger = slider (or pan when zoomed), double-tap = 100% / fit
+let pinch = null, touchPan = null, lastTap = 0;
+const touchDist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+compareWrap.addEventListener('touchstart', e => {
+  lastTouch = Date.now();
+  if (e.touches.length === 2) { dragging = false; touchPan = null; pinch = { d: touchDist(e.touches), z: zoom }; return; }
+  if (e.touches.length !== 1) return;
+  const t = e.touches[0];
+  if (Date.now() - lastTap < 300) { lastTap = 0; toggleZoom(t.clientX, t.clientY); return; }
+  lastTap = Date.now();
+  if (zoom > 1 && !e.target.closest('#compareSliderLine')) touchPan = { x: t.clientX - panX, y: t.clientY - panY };
+  else { dragging = true; moveSlider(t); }
+}, { passive: true });
 document.addEventListener('mousemove', e => {
   if (panning) { panX = e.clientX - panStart.x; panY = e.clientY - panStart.y; applyZoom(); }
   else if (dragging) moveSlider(e);
 });
-document.addEventListener('touchmove', e => { if (dragging) moveSlider(e.touches[0]); }, { passive: true });
+document.addEventListener('touchmove', e => {
+  lastTouch = Date.now();
+  if (pinch && e.touches.length === 2) {
+    const [a, b] = e.touches;
+    zoomAt((a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2, pinch.z * touchDist(e.touches) / pinch.d);
+  } else if (touchPan && e.touches.length === 1) {
+    panX = e.touches[0].clientX - touchPan.x; panY = e.touches[0].clientY - touchPan.y; applyZoom();
+  } else if (dragging && e.touches.length === 1) moveSlider(e.touches[0]);
+}, { passive: true });
 document.addEventListener('mouseup', () => { dragging = panning = false; compareWrap.classList.remove('panning'); });
-document.addEventListener('touchend', () => { dragging = false; });
+document.addEventListener('touchend', e => {
+  lastTouch = Date.now();
+  if (e.touches.length < 2) pinch = null;
+  if (e.touches.length === 0) { dragging = false; touchPan = null; }
+});
 
 function moveSlider(e) {
   const rect = compareWrap.getBoundingClientRect();

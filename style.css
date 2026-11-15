@@ -493,10 +493,12 @@ body {
   .controls-panel { grid-template-columns: 1fr; }
   .control-group.full-width { grid-column: auto; }
   .action-bar { flex-direction: column; }
-  .preview-card { grid-template-columns: 60px 1fr auto; gap: 10px; }
-  .card-thumb { width: 60px; height: 46px; }
+  .card-thumb { width: 100%; height: auto; }
   .summary-card { gap: 10px; }
   .summary-divider, .summary-arrow { display: none; }
+  .preview-card { grid-template-columns: 1fr; gap: 8px; padding: 12px; }
+  .card-actions{flex-direction: row;}
+
 }
 @media (max-width: 400px) {
   .container { padding: 28px 14px 72px; }
@@ -544,3 +546,49 @@ body {
 }
 
 .savings-badge.worse { background: rgba(255,183,77,0.12); border-color: rgba(255,183,77,0.35); color: #ffb74d; }
+
+/* ===== ROUND 4: small screens & touch ===== */
+.fmt-badge { white-space: nowrap; }
+.hint-touch { display: none; }
+.compare-wrap { touch-action: none; }          /* we handle pinch / pan / tap ourselves */
+
+@media (max-width: 420px) {
+  .logo-text{font-size: 1.5rem;}
+  .fmt-badge { display: none; }                /* "Best for Web" doesn't fit inside a third of 320px */
+  .fmt-tab { padding: 10px 6px; }
+  .compare-hint { font-size: 0.66rem; padding: 3px 8px; }
+}
+
+/* Touch devices: bigger tap targets, and 16px inputs so iOS Safari doesn't zoom the page on focus */
+@media (pointer: coarse) {
+  .icon-btn { width: 42px; height: 42px; }
+  .card-actions { gap: 8px; }
+  .fmt-tab { padding-top: 12px; padding-bottom: 12px; }
+  .modal-close { padding: 10px 14px; }
+  .clear-btn, .preset-clear-btn { padding: 10px 14px; }
+  .name-edit { padding: 10px 12px; font-size: 1rem; }
+  .checkbox-row input[type="checkbox"] { width: 20px; height: 20px; }
+  .checkbox-row { padding: 6px 0; }
+  .browse-link { padding: 8px 4px; }
+  .toast-action { padding: 10px 6px; }
+  input[type="number"], input[type="text"], .name-input { font-size: 16px; }
+  .hint-mouse { display: none; }
+  .hint-touch { display: inline; }
+}
+@media (hover: none) {
+  .hint-mouse { display: none; }
+  .hint-touch { display: inline; }
+}
+
+/* Short screens (phone in landscape): let the modal scroll instead of running off-screen */
+.modal-box { max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); overflow-y: auto; }
+
+/* ROUND 4b: keep rows compact on phones — big tap area without big layout */
+@media (pointer: coarse) {
+  .name-edit { position: relative; padding: 2px 6px; font-size: 0.95rem; }
+  .name-edit::after { content: ''; position: absolute; inset: -12px -8px; }   /* 40px+ hit area, no extra height */
+  .fmt-tab { padding-top: 13px; padding-bottom: 13px; }
+}
+@media (max-width: 400px) {
+  .card-thumb { width: 48px; height: 38px; }
+}
